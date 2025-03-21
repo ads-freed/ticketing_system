@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Chat for Ticket {{ ticket.id }}{% endblock %}
+{% block content %}
+<h2>Chat for Ticket: {{ ticket.title }}</h2>
+<div id="chat-box" style="height:300px; overflow-y:scroll; border:1px solid #ccc; padding:10px;">
+  {% for msg in messages %}
+    <div><strong>{{ msg.sender.username }}</strong>: {{ msg.content }} <small>{{ msg.created_at.strftime('%H:%M') }}</small></div>
+  {% endfor %}
+</div>
+<form id="chat-form">
+  <input type="text" id="chat-message" placeholder="Type a message..." class="form-control">
+  <button type="submit" class="btn btn-primary mt-2">Send</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+  const socket = io();
+  const ticketId = {{ ticket.id }};
+  socket.emit('join', { ticket_id: ticketId });
+  
+  socket.on('message', function(data){
+      $('#chat-box').append('<div><strong>' + data.sender + '</strong>: ' + data.content + ' <small>' + data.timestamp + '</small></div>');
+  });
+  
+  $('#chat-form').submit(function(e){
+      e.preventDefault();
+      const content = $('#chat-message').val();
+      socket.emit('message', { ticket_id: ticketId, content: content });
+      $('#chat-message').val('');
+  });
+</script>
+{% endblock %}
