@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Ticket Details{% endblock %}
+{% block content %}
+<h2>{{ ticket.title }}</h2>
+<p><strong>Status:</strong> {{ ticket.status }} | <strong>Priority:</strong> {{ ticket.priority }}</p>
+<div class="mb-3">
+  <h4>Description</h4>
+  <div>{{ ticket.description|safe }}</div>
+</div>
+
+<hr>
+<h4>Conversation</h4>
+<div id="messages">
+  {% for message in messages %}
+    <div class="border p-2 mb-2">
+      <strong>{{ message.sender.username }}</strong> <small>{{ message.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+      <p>{{ message.content|safe }}</p>
+      {% if message.attachment %}
+      <a href="{{ url_for('uploaded_file', filename=message.attachment) }}" target="_blank">Download attachment</a>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+  {{ csrf_token() }}
+  <div class="mb-3">
+    <label for="content" class="form-label">Your Reply</label>
+    <textarea name="content" class="form-control" rows="4" required></textarea>
+  </div>
+  <div class="mb-3">
+    <label for="attachment" class="form-label">Attachment</label>
+    <input type="file" name="attachment" class="form-control">
+  </div>
+  <button type="submit" class="btn btn-success">Submit Reply</button>
+</form>
+{% endblock %}
